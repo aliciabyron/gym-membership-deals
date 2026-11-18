@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Gym Deal Scout</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: one column workbench — search form, platform link grid, Claude scan, saved-deal log */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --fg:#1d2420; --muted:#5d6a63; --line:#d9dfdb;
+  --accent:#0f7a63; --accent-ink:#ffffff; --hold:#f2b705; --hold-ink:#2b2200; --warn:#a4470d; --chip:#e5ece8;
+  --display:"Bricolage Grotesque",ui-sans-serif,system-ui,sans-serif;
+  --body:"Inter",ui-sans-serif,system-ui,-apple-system,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#121614; --surface:#1a201d; --fg:#e7ece9; --muted:#9aa8a0; --line:#2c3531;
+  --accent:#3cc29f; --accent-ink:#06261d; --hold:#f2c53d; --hold-ink:#2b2200; --warn:#f0965a; --chip:#232b27; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121614; --surface:#1a201d; --fg:#e7ece9; --muted:#9aa8a0; --line:#2c3531;
+  --accent:#3cc29f; --accent-ink:#06261d; --hold:#f2c53d; --hold-ink:#2b2200; --warn:#f0965a; --chip:#232b27; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5}
+.wrap{max-width:1040px;margin:0 auto;padding-block:28px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.1}
+h1{font-size:clamp(30px,5vw,44px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:22px;font-weight:700}
+h3{font-size:16px;font-weight:600}
+p{margin:0}
+.lede{color:var(--muted);max-width:62ch;margin-top:8px}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+header .label{color:var(--accent)}
+section{display:grid;gap:14px}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:18px}
+form{display:grid;gap:16px}
+.row{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+@media (max-width:640px){.row{grid-template-columns:1fr}}
+label.field{display:grid;gap:6px;font-weight:500;font-size:14px}
+input[type=text],input[type=url],select,textarea{font:inherit;color:var(--fg);background:var(--bg);border:1px solid var(--line);border-radius:7px;padding:9px 11px;width:100%;min-width:0}
+textarea{resize:vertical;min-height:60px}
+input:focus-visible,select:focus-visible,textarea:focus-visible,button:focus-visible,a:focus-visible,.chip:focus-within{outline:2px solid var(--accent);outline-offset:2px}
+fieldset{border:0;padding:0;margin:0;display:grid;gap:8px}
+legend{font-weight:500;font-size:14px;margin-bottom:6px;padding:0}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{position:relative;display:inline-flex;align-items:center;gap:6px;background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13.5px;cursor:pointer;user-select:none}
+.chip input{position:absolute;opacity:0;pointer-events:none}
+.chip:has(input:checked){background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.btn{font:inherit;font-weight:600;border:1px solid var(--accent);background:var(--accent);color:var(--accent-ink);border-radius:7px;padding:9px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.small{padding:5px 10px;font-size:13px}
+.btn:disabled{opacity:.55;cursor:default}
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.note{font-size:13px;color:var(--muted)}
+.platforms{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px}
+.plat{display:grid;gap:10px;align-content:start}
+.plat header{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.plat ul{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.plat li a{display:block;color:var(--fg);text-decoration:none;font-size:13.5px;padding:7px 10px;border-radius:6px;background:var(--bg);border:1px solid var(--line);overflow-wrap:anywhere}
+.plat li a:hover{border-color:var(--accent);color:var(--accent)}
+.plat li a .q{font-family:var(--mono);font-size:11.5px;color:var(--muted);display:block}
+.tip{font-size:12.5px;color:var(--muted)}
+.grade{font-family:var(--mono);font-size:11px;background:var(--hold);color:var(--hold-ink);border-radius:4px;padding:2px 6px;white-space:nowrap}
+.banner{font-size:13px;background:var(--chip);border-radius:7px;padding:8px 12px}
+.tablewrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;min-width:760px;font-size:13.5px}
+th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);font-weight:500}
+tr:last-child td{border-bottom:0}
+td a{color:var(--accent);overflow-wrap:anywhere}
+.tag{display:inline-block;font-size:12px;border-radius:999px;padding:1px 8px;background:var(--chip);white-space:nowrap}
+.tag.student{background:var(--hold);color:var(--hold-ink)}
+.conf-low{color:var(--warn)}
+.empty{padding:28px;text-align:center;color:var(--muted)}
+.addform{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px}
+.addform .wide{grid-column:1/-1}
+.status{font-size:13px;color:var(--muted);min-height:1.2em}
+.err{color:var(--warn)}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.card{display:grid;gap:6px;align-content:start;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:12px}
+.card .meta{display:flex;flex-wrap:wrap;gap:6px}
+.card p{font-size:13.5px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <p class="label">Student + membership deals · climbing & regular gyms</p>
+    <h1>Gym Deal Scout</h1>
+    <p class="lede">Enter a place and what you're after. Scout builds targeted searches for Instagram, Facebook, Reddit, TikTok, Google and gym directories, opens each in a new tab, and keeps a log of the deals you confirm.</p>
+  </header>
+
+  <section class="panel" aria-labelledby="h-search">
+    <h2 id="h-search" hidden>Search</h2>
+    <form id="f">
+      <div class="row">
+        <label class="field">City, neighborhood or ZIP
+          <input type="text" id="loc" placeholder="e.g. Boulder, CO" autocomplete="off">
+        </label>
+        <label class="field">School (optional)
+          <input type="text" id="school" placeholder="e.g. CU Boulder" autocomplete="off">
+        </label>
+      </div>
+      <fieldset>
+        <legend>Gym type</legend>
+        <div class="chips" id="gymTypes"></div>
+      </fieldset>
+      <fieldset>
+        <legend>Deal type</legend>
+        <div class="chips" id="dealTypes"></div>
+      </fieldset>
+      <div class="actions">
+        <button class="btn" type="submit" id="go">Build searches</button>
+        <span class="note" id="exampleNote">Showing an example for Boulder, CO. Type your own location and press Build searches.</span>
+      </div>
+    </form>
+  </section>
+
+  <section aria-labelledby="h-links">
+    <div>
+      <h2 id="h-links">Search links</h2>
+      <p class="note">Each link opens the platform's own search in a new tab. Instagram and Facebook need you to be logged in to see most posts.</p>
+    </div>
+    <div class="platforms" id="platforms"></div>
+  </section>
+
+  <section class="panel" id="aiPanel" aria-labelledby="h-ai" hidden>
+    <div>
+      <h2 id="h-ai">Ask Claude for a starting list</h2>
+      <p class="note">Claude lists gyms it knows in this area and any student or membership pricing it remembers. It doesn't browse the web, so prices may be out of date. Check each one on the gym's site or socials before you rely on it.</p>
+    </div>
+    <div class="actions">
+      <button class="btn ghost" type="button" id="askBtn">Get gym list for this location</button>
+      <span class="status" id="aiStatus"></span>
+    </div>
+    <div class="cards" id="aiCards"></div>
+  </section>
+
+  <section aria-labelledby="h-log">
+    <div class="actions" style="justify-content:space-between">
+      <div>
+        <h2 id="h-log">Deal log</h2>
+        <p class="note" id="storeNote">Deals you confirm, saved to your account.</p>
+      </div>
+      <button class="btn ghost small" type="button" id="copyCsv">Copy as CSV</button>
+    </div>
+    <details class="panel" id="addBox">
+      <summary style="cursor:pointer;font-weight:600">Add a deal you found</summary>
+      <form id="addForm" style="margin-top:14px">
+        <div class="addform">
+          <label class="field">Gym<input type="text" id="d_gym" required></label>
+          <label class="field">Location<input type="text" id="d_loc"></label>
+          <label class="field">Gym type
+            <select id="d_type"><option>Climbing</option><option>Bouldering</option><option>Regular gym</option><option>Other</option></select>
+          </label>
+          <label class="field">Deal type
+            <select id="d_deal"><option>Student</option><option>Membership promo</option><option>Intro / first visit</option><option>Punch card</option><option>Off-peak</option><option>Other</option></select>
+          </label>
+          <label class="field">Price<input type="text" id="d_price" placeholder="$55/mo with student ID"></label>
+          <label class="field">Ends<input type="text" id="d_end" placeholder="Dec 31 or ongoing"></label>
+          <label class="field wide">Source link<input type="url" id="d_src" placeholder="https://instagram.com/p/…"></label>
+          <label class="field wide">Notes<textarea id="d_notes" placeholder="Needs .edu email, ages 18–25, etc."></textarea></label>
+        </div>
+        <div class="actions" style="margin-top:12px"><button class="btn" type="submit">Save deal</button><span class="status" id="addStatus"></span></div>
+      </form>
+    </details>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>Gym</th><th>Location</th><th>Type</th><th>Deal</th><th>Price</th><th>Ends</th><th>Source</th><th></th></tr></thead>
+        <tbody id="log"></tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const GYM_TYPES = [
+  {id:"climb", label:"Climbing gym", terms:["climbing gym"], tags:["climbinggym","indoorclimbing"]},
+  {id:"boulder", label:"Bouldering", terms:["bouldering gym"], tags:["bouldering","boulderinggym"]},
+  {id:"gym", label:"Regular gym", terms:["gym","fitness center"], tags:["gym","fitness"]},
+  {id:"studio", label:"Yoga / studio", terms:["yoga studio","fitness studio"], tags:["yoga"]}
+];
+const DEAL_TYPES = [
+  {id:"student", label:"Student", terms:["student discount","student membership","student rate"]},
+  {id:"promo", label:"Membership promo", terms:["membership deal","no initiation fee","membership promo"]},
+  {id:"intro", label:"Intro / free pass", terms:["free day pass","first visit free","intro offer"]},
+  {id:"offpeak", label:"Off-peak / punch card", terms:["off-peak membership","punch card","10 punch pass"]}
+];
+const defaults = {gym:["climb","boulder","gym"], deal:["student","promo"]};
+
+function chips(host, list, name, on){
+  host.innerHTML = list.map(t=>`<label class="chip"><input type="checkbox" id="${name}_${t.id}" name="${name}" value="${t.id}" ${on.includes(t.id)?"checked":""}>${t.label}</label>`).join("");
+}
+chips($("#gymTypes"), GYM_TYPES, "g", defaults.gym);
+chips($("#dealTypes"), DEAL_TYPES, "d", defaults.deal);
+
+const enc = encodeURIComponent;
+const checked = n => [...document.querySelectorAll(`input[name=${n}]:checked`)].map(i=>i.value);
+
+function build(loc, school, gymIds, dealIds){
+  const gyms = GYM_TYPES.filter(g=>gymIds.includes(g.id));
+  const deals = DEAL_TYPES.filter(d=>dealIds.includes(d.id));
+  const gymOr = gyms.flatMap(g=>g.terms).map(t=>`"${t}"`).join(" OR ");
+  const dealOr = deals.flatMap(d=>d.terms).map(t=>`"${t}"`).join(" OR ");
+  const city = loc.trim();
+  const short = city.split(",")[0].trim();
+  const cityTag = short.toLowerCase().replace(/[^a-z0-9]/g,"");
+  const g = q => "https://www.google.com/search?q="+enc(q);
+  const gRecent = q => "https://www.google.com/search?tbs=qdr:m&q="+enc(q);
+  const L = (text,href,q) => ({text,href,q});
+  const out = [];
+  const firstGym = gyms[0] ? gyms[0].terms[0] : "gym";
+  const firstDeal = deals[0] ? deals[0].terms[0] : "deal";
+
+  out.push({name:"Instagram", grade:"login", tip:"Google indexes public Instagram posts and bios, which is the most reliable way to search them by keyword. The hashtag links open Instagram directly.", links:[
+    L("Posts mentioning deals (via Google)", g(`site:instagram.com (${gymOr}) (${dealOr}) "${short}"`), `site:instagram.com … "${short}"`),
+    L("Posts from the past month (via Google)", gRecent(`site:instagram.com (${gymOr}) (student OR promo OR deal OR discount) "${short}"`), "past month only"),
+    ...gyms.slice(0,2).map(gt=>L(`#${cityTag}${gt.tags[0]}`, `https://www.instagram.com/explore/tags/${enc(cityTag+gt.tags[0])}/`, "hashtag page")),
+    L(`Instagram search: ${short} ${firstGym}`, `https://www.instagram.com/explore/search/keyword/?q=${enc(short+" "+firstGym)}`, "keyword search")
+  ]});
+  out.push({name:"Facebook", grade:"login", tip:"Gym pages post sales and student nights here. Check the Events tab too.", links:[
+    L("Posts about deals", `https://www.facebook.com/search/posts?q=${enc(`${firstGym} ${firstDeal} ${short}`)}`, `${firstGym} ${firstDeal} ${short}`),
+    L("Gym pages in this area", `https://www.facebook.com/search/pages?q=${enc(`${firstGym} ${short}`)}`, "pages"),
+    L("Local events (student nights, open houses)", `https://www.facebook.com/search/events?q=${enc(`${firstGym} ${short}`)}`, "events"),
+    L("Public posts (via Google)", g(`site:facebook.com (${gymOr}) (${dealOr}) "${short}"`), "site:facebook.com")
+  ]});
+  out.push({name:"Reddit", grade:"open", tip:"Locals often share real prices and which gyms check student IDs.", links:[
+    L("Reddit search", `https://www.reddit.com/search/?q=${enc(`${firstGym} ${short} student`)}`, `${firstGym} ${short} student`),
+    L("Threads via Google", g(`site:reddit.com (${gymOr}) "${short}" (student OR membership OR price OR cheap)`), "site:reddit.com"),
+    L("r/climbing threads", g(`site:reddit.com/r/climbing "${short}" (student OR membership OR price)`), "r/climbing")
+  ]});
+  out.push({name:"TikTok & X", grade:"mixed", tip:"Good for short-lived promos and New Year or back-to-school sales.", links:[
+    L("TikTok search", `https://www.tiktok.com/search?q=${enc(`${short} ${firstGym} ${firstDeal}`)}`, `${short} ${firstGym} ${firstDeal}`),
+    L("X search", `https://x.com/search?q=${enc(`${short} (${gyms.map(g=>g.terms[0]).join(" OR ")}) (student OR promo OR deal)`)}&f=live`, "latest posts")
+  ]});
+  out.push({name:"Google & gym sites", grade:"open", tip:"Most gyms list student rates on their Rates or Membership page. The PDF search catches price sheets.", links:[
+    L("Student / membership pricing pages", g(`(${gymOr}) "${short}" (${dealOr})`), "all gym types"),
+    L("Rates pages", g(`(${gymOr}) "${short}" (intitle:rates OR intitle:pricing OR intitle:membership)`), "intitle:rates"),
+    L("Price sheet PDFs", g(`(${gymOr}) "${short}" (student OR membership) filetype:pdf`), "filetype:pdf"),
+    L("Last month's news and promos", gRecent(`(${gymOr}) "${short}" (promo OR sale OR "no initiation")`), "past month")
+  ]});
+  out.push({name:"Maps & directories", grade:"open", tip:"Find every gym nearby, then check each one's site and socials.", links:[
+    ...gyms.map(gt=>L(`Google Maps: ${gt.terms[0]}s`, `https://www.google.com/maps/search/${enc(gt.terms[0]+" near "+city)}`, `near ${city}`)),
+    L("Yelp", `https://www.yelp.com/search?find_desc=${enc(firstGym)}&find_loc=${enc(city)}`, firstGym),
+    L("ClassPass (drop-in credits)", g(`site:classpass.com (${gymOr}) "${short}"`), "site:classpass.com")
+  ]});
+  const sch = school.trim();
+  out.push({name:"Student programs", grade:"student", tip:"Universities often have gym partnerships or rec-center climbing walls. Student discount sites sometimes list national chains.", links:[
+    ...(sch ? [
+      L(`${sch} partner gym discounts`, g(`"${sch}" (${gymOr}) (discount OR partnership OR "student rate")`), sch),
+      L(`${sch} rec center climbing wall`, g(`"${sch}" (recreation OR "rec center") "climbing wall"`), "campus wall")
+    ] : [L("Campus rec center climbing walls", g(`university "${short}" "climbing wall" recreation`), "campus walls")]),
+    L("UNiDAYS / Student Beans gym offers", g(`(site:myunidays.com OR site:studentbeans.com) gym membership`), "national chains"),
+    L("Climbing gym chain student rates", g(`climbing gym chain "student" membership price ${short}`), "chains")
+  ]});
+  return out;
+}
+
+function renderLinks(groups){
+  $("#platforms").innerHTML = groups.map(p=>`
+    <div class="panel plat">
+      <header><h3>${p.name}</h3><span class="grade">${p.grade==="login"?"login needed":p.grade==="open"?"no login":p.grade==="student"?"students":"some login"}</span></header>
+      <ul>${p.links.map(l=>`<li><a href="${l.href}" target="_blank" rel="noopener noreferrer">${esc(l.text)}<span class="q">${esc(l.q)}</span></a></li>`).join("")}</ul>
+      <p class="tip">${p.tip}</p>
+    </div>`).join("");
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+
+let current = {loc:"Boulder, CO", school:""};
+function run(){
+  const loc = $("#loc").value.trim() || "Boulder, CO";
+  const school = $("#school").value.trim();
+  let gym = checked("g"), deal = checked("d");
+  if(!gym.length) gym = defaults.gym;
+  if(!deal.length) deal = defaults.deal;
+  current = {loc, school};
+  renderLinks(build(loc, school, gym, deal));
+  $("#exampleNote").textContent = $("#loc").value.trim() ? `Searches built for ${loc}.` : "Showing an example for Boulder, CO. Type your own location and press Build searches.";
+  $("#askBtn").textContent = `Get gym list for ${loc}`;
+  $("#aiCards").innerHTML = "";
+  $("#aiStatus").textContent = "";
+  try{ localStorage.setItem("gds_last", JSON.stringify({loc:$("#loc").value, school})) }catch(e){}
+}
+$("#f").addEventListener("submit", e=>{e.preventDefault(); run();});
+try{ const last = JSON.parse(localStorage.getItem("gds_last")||"null"); if(last){ $("#loc").value = last.loc||""; $("#school").value = last.school||""; } }catch(e){}
+run();
+
+/* ---------- Deal log: db per user, falls back to this browser ---------- */
+let deals = [];
+let store = null; // {save(d), remove(id)}
+function renderLog(){
+  const tb = $("#log");
+  if(!deals.length){
+    tb.innerHTML = `<tr><td colspan="8" class="empty">No deals logged yet. When you find one, open <b>Add a deal you found</b> above, or tap <b>Save to log</b> on a Claude suggestion.</td></tr>`;
+    return;
+  }
+  const sorted = [...deals].sort((a,b)=>(b.created||0)-(a.created||0));
+  tb.innerHTML = sorted.map(d=>`<tr>
+    <td><b>${esc(d.gym)}</b>${d.notes?`<div class="note">${esc(d.notes)}</div>`:""}</td>
+    <td>${esc(d.loc)}</td><td>${esc(d.type)}</td>
+    <td><span class="tag ${d.deal==="Student"?"student":""}">${esc(d.deal)}</span></td>
+    <td style="font-variant-numeric:tabular-nums">${esc(d.price)}</td><td>${esc(d.end)}</td>
+    <td>${/^https?:\/\//.test(d.src||"")?`<a href="${esc(d.src)}" target="_blank" rel="noopener noreferrer">${esc(hostOf(d.src))}</a>`:'<span class="note">none</span>'}</td>
+    <td><button class="btn ghost small" type="button" data-del="${esc(d.id)}" aria-label="Delete ${esc(d.gym)}">Delete</button></td>
+  </tr>`).join("");
+}
+function hostOf(u){try{return new URL(u).hostname.replace(/^www\./,"")}catch(e){return "link"}}
+$("#log").addEventListener("click", async e=>{
+  const id = e.target.closest("[data-del]")?.dataset.del; if(!id||!store) return;
+  try{ await store.remove(id) }catch(err){ console.error(err) }
+});
+
+function localStore(){
+  try{ deals = JSON.parse(localStorage.getItem("gds_deals")||"[]") }catch(e){ deals = [] }
+  const persist = ()=>{ try{ localStorage.setItem("gds_deals", JSON.stringify(deals)) }catch(e){} renderLog(); };
+  return {save:async d=>{deals.push(d); persist()}, remove:async id=>{deals = deals.filter(x=>x.id!==id); persist()}};
+}
+store = localStore();
+$("#storeNote").textContent = "Deals you confirm. Saved in this browser until your account connects.";
+renderLog();
+
+(async()=>{
+  if(!window.claude?.use) return;
+  const [db, user] = await Promise.all([claude.use("db"), claude.use("user")]);
+  if(!db || !user) { $("#storeNote").textContent = "Deals you confirm, saved in this browser only."; return; }
+  const uid = await user.id();
+  if(!uid) return;
+  const col = db.collection("data/users/"+uid+"/deals");
+  const localOnly = deals.slice();
+  store = {save:d=>col.doc(d.id).set(d), remove:id=>col.doc(id).delete()};
+  $("#storeNote").textContent = "Deals you confirm, saved to your account.";
+  let migrated = false;
+  const t = setTimeout(()=>{ $("#storeNote").textContent = "Your saved deals can't be reached yet. They'll appear when the connection returns."; }, 10000);
+  col.onSnapshot(snap=>{
+    if(!snap.fromCache){ clearTimeout(t); $("#storeNote").textContent = "Deals you confirm, saved to your account."; }
+    deals = snap.docs.map(s=>s.data()).filter(Boolean);
+    renderLog();
+    if(!migrated && !snap.fromCache && localOnly.length){
+      migrated = true;
+      (async()=>{ for(const d of localOnly){ if(!deals.some(x=>x.id===d.id)) { try{ await col.doc(d.id).set(d) }catch(e){} } }
+        try{ localStorage.removeItem("gds_deals") }catch(e){} })();
+    }
+  }, err=>{ clearTimeout(t); $("#storeNote").textContent = "Saved deals couldn't load. Reload the page to try again."; console.error(err); });
+})();
+
+function newId(){ return "d"+Date.now().toString(36)+Math.random().toString(36).slice(2,7) }
+$("#addForm").addEventListener("submit", async e=>{
+  e.preventDefault();
+  const d = {id:newId(), created:Date.now(), gym:$("#d_gym").value.trim(), loc:$("#d_loc").value.trim()||current.loc,
+    type:$("#d_type").value, deal:$("#d_deal").value, price:$("#d_price").value.trim(), end:$("#d_end").value.trim(),
+    src:$("#d_src").value.trim(), notes:$("#d_notes").value.trim()};
+  if(!d.gym) return;
+  try{ await store.save(d); $("#addStatus").textContent = `Saved ${d.gym}.`; e.target.reset(); }
+  catch(err){ $("#addStatus").innerHTML = `<span class="err">Couldn't save: ${esc(err?.message||"unknown error")}. Try again.</span>`; }
+});
+
+$("#copyCsv").addEventListener("click", async ()=>{
+  const cols = ["gym","loc","type","deal","price","end","src","notes"];
+  const csv = [cols.join(",")].concat(deals.map(d=>cols.map(c=>`"${String(d[c]??"").replace(/"/g,'""')}"`).join(","))).join("\n");
+  const btn = $("#copyCsv");
+  try{ await navigator.clipboard.writeText(csv); btn.textContent = "Copied"; }
+  catch(e){ btn.textContent = "Copy blocked"; }
+  setTimeout(()=>btn.textContent="Copy as CSV", 1800);
+});
+
+/* ---------- Ask Claude ---------- */
+let suggestions = [];
+(async()=>{
+  if(!window.claude?.use) return;
+  const sample = await claude.use("sample");
+  if(!sample) return;
+  $("#aiPanel").hidden = false;
+  $("#askBtn").addEventListener("click", async ()=>{
+    const btn = $("#askBtn"); btn.disabled = true;
+    $("#aiStatus").textContent = "Thinking…"; $("#aiCards").innerHTML = "";
+    const gyms = GYM_TYPES.filter(g=>checked("g").includes(g.id)).map(g=>g.label).join(", ") || "climbing gyms and regular gyms";
+    const prompt = `List real ${gyms} in or near ${current.loc}${current.school?` (the user is a student at ${current.school})`:""}. For each, give any student pricing, membership promotions, intro offers or off-peak options you know of. Only include gyms you are fairly sure exist. If you don't know a gym's deals, say "Unknown, check their Rates page". Prices may be outdated, so mark confidence honestly.
+Return ONLY a JSON array (max 12 items) of objects: {"gym": string, "type": "Climbing"|"Bouldering"|"Regular gym"|"Other", "area": string, "deal": string, "dealType": "Student"|"Membership promo"|"Intro / first visit"|"Punch card"|"Off-peak"|"Other", "price": string, "website": string (homepage URL or ""), "instagram": string (handle without @ or ""), "confidence": "high"|"medium"|"low"}.`;
+    try{
+      const res = await sample.json(prompt, {modelTier:"default"});
+      suggestions = Array.isArray(res) ? res : (res?.gyms || []);
+      if(!suggestions.length){ $("#aiStatus").textContent = "Claude didn't know any gyms here. Try a larger nearby city."; return; }
+      $("#aiStatus").textContent = `${suggestions.length} gyms. Verify each before saving.`;
+      $("#aiCards").innerHTML = suggestions.map((s,i)=>`<div class="card">
+        <h3>${esc(s.gym)}</h3>
+        <div class="meta"><span class="tag">${esc(s.type)}</span>${s.dealType?`<span class="tag ${s.dealType==="Student"?"student":""}">${esc(s.dealType)}</span>`:""}<span class="tag ${s.confidence==="low"?"conf-low":""}">${esc(s.confidence||"?")} confidence</span></div>
+        <p>${esc(s.deal)}${s.price?` · <b>${esc(s.price)}</b>`:""}</p>
+        <p class="note">${esc(s.area)}</p>
+        <div class="actions">
+          ${/^https?:\/\//.test(s.website||"")?`<a class="btn ghost small" href="${esc(s.website)}" target="_blank" rel="noopener noreferrer">Website</a>`:`<a class="btn ghost small" href="https://www.google.com/search?q=${enc(s.gym+" "+current.loc+" rates")}" target="_blank" rel="noopener noreferrer">Find rates</a>`}
+          ${s.instagram?`<a class="btn ghost small" href="https://www.instagram.com/${enc(String(s.instagram).replace(/^@/,""))}/" target="_blank" rel="noopener noreferrer">Instagram</a>`:""}
+          <button class="btn small" type="button" data-save="${i}">Save to log</button>
+        </div></div>`).join("");
+    }catch(err){
+      $("#aiStatus").innerHTML = err?.code==="not_granted" ? "Claude access wasn't allowed for this page. The search links above still work." :
+        err?.code==="rate_limited" ? `<span class="err">Usage limit reached. Try again in a few minutes.</span>` :
+        `<span class="err">Couldn't get a list (${esc(err?.code||"error")}). Try again.</span>`;
+      if(err?.code==="not_granted") btn.hidden = true;
+    }finally{ btn.disabled = false; }
+  });
+  $("#aiCards").addEventListener("click", async e=>{
+    const b = e.target.closest("[data-save]"); if(!b) return;
+    const s = suggestions[+b.dataset.save]; if(!s) return;
+    const d = {id:newId(), created:Date.now(), gym:s.gym||"", loc:s.area||current.loc, type:s.type||"Other", deal:s.dealType||"Other",
+      price:s.price||"", end:"", src:s.website||"", notes:`From Claude (${s.confidence||"?"} confidence), unverified: ${s.deal||""}`};
+    try{ await store.save(d); b.textContent = "Saved"; b.disabled = true; }catch(err){ b.textContent = "Save failed"; }
+  });
+})();
+})();
+</script>
+</body>
+</html>
